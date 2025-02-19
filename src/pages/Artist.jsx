@@ -8,20 +8,24 @@ import { songsArray } from "../assets/database/songs";
 
 export default function Artist() {
   const { id } = useParams();
-  
-  const artist = artistArray.filter((artist) => artist._id === id)[0];
-  
+
+  const artist = artistArray.find((artist) => artist._id === id);
+
+  if (!artist) {
+    return <p>Artista não encontrado</p>;
+  }
+
   const songsArrayFromArtists = songsArray.filter(
-    (artistName) => artistName.artist === artist.name
+    (song) => song.artist === artist.name
   );
-  
-  const randomIndex = Math.floor(
-    Math.random() * (songsArrayFromArtists.length - 1)
-  );
-  const randomIdFromArtist = songsArrayFromArtists[randomIndex]._id
+
+  if (songsArrayFromArtists.length === 0) {
+    return <p>Sem músicas disponíveis para este artista.</p>;
+  }
+
+  const randomIndex = Math.floor(Math.random() * songsArrayFromArtists.length);
+  const randomIdFromArtist = songsArrayFromArtists[randomIndex]._id;
   const url = `/song/${randomIdFromArtist}`;
-
-
 
   return (
     <div className="artist">

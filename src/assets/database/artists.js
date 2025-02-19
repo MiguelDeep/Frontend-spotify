@@ -1,6 +1,20 @@
-import { artistArray } from "../../../src/Api/api";
+import { fetchArtistsAndSongs } from "../../../src/Api/api";
+
+let artistArray = [];
+
+const loadArtists = async () => {
+  try {
+    const response = await fetchArtistsAndSongs();
+    artistArray = response.artistArray;
+  } catch (error) {
+    console.error("Erro ao carregar os artistas:", error);
+  }
+};
+
+loadArtists();
 
 export { artistArray };
+
 
 /*  [
   {

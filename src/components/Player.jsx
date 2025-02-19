@@ -8,76 +8,90 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import { songsArray } from "../assets/database/songs";
-const formatTime = (timeInSecunds) => {
-  const minutes = Math.floor(timeInSecunds / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = Math.floor(timeInSecunds - minutes * 60)
-    .toString()
-    .padStart(2, "0");
 
-  return `${minutes} : ${seconds}`;
+// Função para formatar tempo corretamente
+const formatTime = (timeInSeconds) => {
+  const minutes = Math.floor(timeInSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = Math.floor(timeInSeconds % 60)
+    .toString()
+    .padStart(2, "0");
+  return `${minutes}:${seconds}`;
 };
-export const Player = ({ duration, audio }) => {
-  const randomIndex = Math.floor(Math.random() * 9) + 1;
-  const randomIndex1 = Math.floor(Math.random() * 9) + 1;
-  const audioPlayer = useRef();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [CurrentTime, setCurrentTime] = useState(formatTime(0));
-  const progressBar = useRef();
-  const newSongs = songsArray[randomIndex]._id;
-  const newSongs1 = songsArray[randomIndex1]._id;
 
-  const timeInSeconds = (timeStrings) => {
-    const splitArray = timeStrings.split(":");
-    const minutes = Number(splitArray[0]);
-    const second = Number(splitArray[1]);
-    return second + minutes * 60;
+export const Player = ({ duration, audio }) => {
+  const audioPlayer = useRef(null);
+  const progressBar = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // Converte tempo para segundos
+  const timeInSeconds = (timeString) => {
+    const [minutes, seconds] = timeString.split(":").map(Number);
+    return minutes * 60 + seconds;
   };
 
   const durationInSeconds = timeInSeconds(duration);
-  console.log(durationInSeconds);
+
+  // Garante que os índices não ultrapassem o tamanho do array
+  const getRandomSongId = () => {
+    const randomIndex = Math.floor(Math.random() * songsArray.length);
+    return songsArray[randomIndex]?._id || ""; // Evita erro de acesso a índice inválido
+  };
+
+  const previousSongId = getRandomSongId();
+  const nextSongId = getRandomSongId();
 
   const playPause = () => {
-    isPlaying ? audioPlayer.current.pause() : audioPlayer.current.play();
+    if (!audioPlayer.current) return;
+    if (isPlaying) {
+      audioPlayer.current.pause();
+    } else {
+      audioPlayer.current.play();
+    }
     setIsPlaying(!isPlaying);
   };
+
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      isPlaying && setCurrentTime(formatTime(audioPlayer.current.currentTime));
-      progressBar.current.style.setProperty(
-        "--_progress",
-        (audioPlayer.current.currentTime / durationInSeconds) * 100 + "%"
-      );
-    }, 1000);
+    if (!audioPlayer.current) return;
+
+    const updateProgress = () => {
+      if (audioPlayer.current) {
+        setCurrentTime(audioPlayer.current.currentTime);
+        const progress = (audioPlayer.current.currentTime / durationInSeconds) * 100;
+        progressBar.current.style.setProperty("--_progress", `${progress}%`);
+      }
+    };
+
+    const intervalId = setInterval(updateProgress, 1000);
 
     return () => clearInterval(intervalId);
-  }, [isPlaying]);
+  }, [durationInSeconds]); // Agora a atualização do tempo ocorre corretamente
 
   return (
     <div className="player">
       <div className="player__controllers">
-        <Link to={`/song/${newSongs}`}>
+        <Link to={`/song/${previousSongId}`}>
           <FontAwesomeIcon className="player__icon" icon={faBackwardStep} />
         </Link>
         <FontAwesomeIcon
           className="player__icon player__icon--play"
           icon={isPlaying ? faCirclePause : faCirclePlay}
-          onClick={() => playPause()}
+          onClick={playPause}
         />
-        <Link to={`/song/${newSongs1}`}>
+        <Link to={`/song/${nextSongId}`}>
           <FontAwesomeIcon className="player__icon" icon={faForwardStep} />
         </Link>
       </div>
       <div className="player__progress">
-        <p>{CurrentTime}</p>
+        <p>{formatTime(currentTime)}</p>
         <div className="player__bar">
           <div ref={progressBar} className="player__bar-progress"></div>
         </div>
-        <p>{"0" + duration}</p>
+        <p>{formatTime(durationInSeconds)}</p>
       </div>
-      <audio ref={audioPlayer} className="" src={audio}></audio>
+      <audio ref={audioPlayer} src={audio}></audio>
     </div>
   );
 };
-

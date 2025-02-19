@@ -1,13 +1,20 @@
-import axios from "axios"
+import axios from "axios";
 
-const URL = "https://backend-spotify-ij8a.onrender.com"
+const URL = "https://backend-spotify-ij8a.onrender.com";
 
-const responseArtists = async()=> await axios.get(URL+"/artists")
-const responseSongs = async()=> await axios.get(URL+"/songs")
+export const fetchArtistsAndSongs = async () => {
+  try {
+    const [responseArtists, responseSongs] = await Promise.all([
+      axios.get(`${URL}/artists`),
+      axios.get(`${URL}/songs`),
+    ]);
 
-
-
-export const artistArray = responseArtists.data
-export const songsArray = responseSongs.data
-
-
+    return {
+      artistArray: responseArtists.data,
+      songsArray: responseSongs.data,
+    };
+  } catch (error) {
+    console.error("Erro ao buscar dados:", error);
+    return { artistArray: [], songsArray: [] };
+  }
+};

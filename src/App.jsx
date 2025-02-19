@@ -6,7 +6,7 @@ import Artist from "./pages/Artist";
 import Artists from "./pages/Artists";
 import Songs from "./pages/Songs";
 import Song from "./pages/Song";
-
+import Notfound from "./pages/Not-found";
 //outrq forma de criar rotas dinamicas
 /* const router = createBrowserRouter([
   {
@@ -41,6 +41,7 @@ function App() {
         <Route path="/artists" element={<Artists />} />
         <Route path="/song/:id" element={<Song />} />
         <Route path="/songs" element={<Songs />} />
+        <Route path="/*" element={<Notfound />} />
       </Routes>
     </BrowserRouter>
   );
