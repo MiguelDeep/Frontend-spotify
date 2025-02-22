@@ -1,22 +1,7 @@
 import { fetchArtistsAndSongs } from "../../../src/Api/api";
 
 let artistArray = [];
-
-const loadArtists = async () => {
-  try {
-    const response = await fetchArtistsAndSongs();
-    artistArray = response.artistArray;
-  } catch (error) {
-    console.error("Erro ao carregar os artistas:", error);
-  }
-};
-
-loadArtists();
-
-export { artistArray };
-
-
-/*  [
+const ObjArtist = [
   {
     id: 1,
     image: "https://i.scdn.co/image/ab676161000051744dcd8a3bff84cd7703892cf4",
@@ -140,4 +125,21 @@ export { artistArray };
     banner: "https://i.scdn.co/image/ab676186000010169415572375bac1960f9de7e5",
   },
 ];
- */
+
+
+
+const loadArtists = async () => {
+  try {
+    const response = await fetchArtistsAndSongs();
+    artistArray = response.artistArray || ObjArtist;
+  } catch (error) {
+    console.error("Erro ao carregar os artistas:", error);
+  }
+};
+
+loadArtists();
+
+export { artistArray };
+
+
+
