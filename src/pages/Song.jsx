@@ -1,5 +1,5 @@
 import { Player } from "../components/Player.jsx";
-import { Link, useParams } from "react-router-dom";
+import { Link, redirect, useParams } from "react-router-dom";
 import { songsArray } from "../assets/database/songs";
 import { artistArray } from "../assets/database/artists";
 
@@ -9,7 +9,8 @@ export default function Song() {
   const song = songsArray.find((song) => song._id === id);
 
   if (!song) {
-    return <p>Música não encontrada</p>;
+    return redirect("/Not-found")
+   // return <p>Música não encontrada</p>;
   }
 
   const artist = artistArray.find((artist) => artist.name === song.artist);
